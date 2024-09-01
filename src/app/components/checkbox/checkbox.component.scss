@@ -1,0 +1,40 @@
+@import '../../styles/base/vars';
+
+.custom-checkbox {
+	position: relative;
+	padding-left: 25px;
+	cursor: pointer;
+	font-size: 20px;
+	font-weight: 700;
+	margin: 0 0 20px 0;
+}
+
+.custom-checkbox input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.custom-checkbox .checkmark {
+	position: absolute;
+	top: 6.5px;
+	left: 0;
+	height: 15px;
+	width: 15px;
+	border-radius: 3px;
+	border: 1px solid $second;
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+	background-color: $accent;
+}
+
+.custom-checkbox .checkmark:after {
+	content: '';
+	position: absolute;
+	display: none;
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+	display: block;
+}

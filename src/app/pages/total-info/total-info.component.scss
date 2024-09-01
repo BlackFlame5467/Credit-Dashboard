@@ -1,0 +1,63 @@
+@import '../../styles/base/vars';
+
+.table__container,
+.pagination__container {
+	width: 100%;
+	overflow-x: auto;
+	margin: 0 0 10px 0;
+}
+.total__table {
+	white-space: nowrap;
+}
+
+th[sortable] {
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+}
+th[sortable].desc,
+th[sortable].asc {
+	margin-bottom: -2px;
+	display: flex;
+	justify-content: center;
+}
+
+th[sortable].desc::before,
+th[sortable].asc::before {
+	content: '';
+	display: block;
+	background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNiNWI3YzAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1hcnJvdy11cCI+PHBhdGggZD0ibTUgMTIgNy03IDcgNyIvPjxwYXRoIGQ9Ik0xMiAxOVY1Ii8+PC9zdmc+');
+	background-size: 22px;
+	width: 22px;
+	height: 22px;
+	float: left;
+	transition: transform 0.4s ease-in-out;
+	margin: 0 0 1px 0;
+}
+th[sortable].desc:before {
+	transform: rotate(180deg);
+	-ms-transform: rotate(180deg);
+}
+
+th[scope='col'] {
+	text-align: center;
+	color: $grey;
+}
+th[scope='row'] {
+	width: calc(100% + 22px);
+	text-align: center;
+}
+td {
+	text-align: center;
+}
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+	--bs-table-bg-type: transparent;
+}
+
+.table > :not(caption) > * > * {
+	padding: 10px 15px 10px 0;
+}
+.prom {
+	color: $accent;
+	font-style: italic;
+}

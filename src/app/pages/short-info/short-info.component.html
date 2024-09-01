@@ -1,0 +1,32 @@
+<form class="row row-cols-sm-auto">
+	<div class="col-12">
+		<div class="input-group">
+			<input
+				class="form-control"
+				[placeholder]="date"
+				name="dp"
+				[(ngModel)]="date"
+				(ngModelChange)="onChangeDate($event)"
+				ngbDatepicker
+				#d="ngbDatepicker"
+			/>
+			<button
+				class="btn btn-outline-secondary bi bi-calendar3"
+				(click)="d.toggle()"
+				type="button"
+			></button>
+		</div>
+	</div>
+</form>
+
+<hr />
+<div class="boards">
+	@for (board of shortboards; track board.id) {
+	<app-shortboard [board]="board"></app-shortboard>
+	}
+</div>
+<div class="tables">
+	@for(table of tables; track table.id) {
+	<app-table [table]="table"></app-table>
+	}
+</div>

@@ -1,0 +1,45 @@
+<app-checkbox></app-checkbox>
+<div class="table__container">
+	<table class="table table-striped total__table">
+		<thead class="total__thead">
+			<tr>
+				<th scope="col">#</th>
+				<th scope="col">Ім'я</th>
+				<th scope="col" sortable="issuance_date" (sort)="onSort($event)">
+					Дата видачі кредиту
+				</th>
+				<th scope="col" sortable="actual_return_date" (sort)="onSort($event)">
+					Дата повернення кредиту
+				</th>
+				<th scope="col">Сума кредиту</th>
+				<th scope="col">Відсоток кредиту</th>
+			</tr>
+		</thead>
+		<tbody>
+			@for( profile of profiles(); track profile.id) {
+			<tr>
+				<th scope="row">{{ profile.id }}</th>
+				<td [ngClass]="{ prom: isChecked }">{{ profile.user }}</td>
+				<td [ngClass]="{ prom: isChecked }">{{ profile.issuance_date }}</td>
+				<td [ngClass]="{ prom: isChecked }">
+					@if (profile.actual_return_date) {
+					{{ profile.actual_return_date }}
+					} @else { - }
+				</td>
+				<td [ngClass]="{ prom: isChecked }">{{ profile.body }} грн.</td>
+				<td [ngClass]="{ prom: isChecked }">{{ profile.percent }} грн.</td>
+			</tr>
+			}
+		</tbody>
+	</table>
+</div>
+<div class="pagination__container">
+	<ngb-pagination
+		[collectionSize]="totalCount()"
+		[(page)]="currentPage"
+		[maxSize]="5"
+		[pageSize]="pageSize"
+		(pageChange)="onPageChange($event)"
+		[boundaryLinks]="true"
+	/>
+</div>
