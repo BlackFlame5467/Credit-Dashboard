@@ -1,5 +1,5 @@
 <label class="custom-checkbox">
-  <input type="checkbox" (change)="onChange($event)" />
-  <span class="checkmark"></span>
-  Показати боржників
+	<input type="checkbox" [checked]="isChecked" (change)="onChange($event)" />
+	<span class="checkmark"></span>
+	Показати боржників
 </label>

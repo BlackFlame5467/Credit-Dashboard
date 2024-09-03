@@ -1,15 +1,13 @@
 import { HttpClient } from '@angular/common/http'
-import { inject, Injectable, signal } from '@angular/core'
-import { map, Observable, of, shareReplay, switchMap, tap } from 'rxjs'
+import { inject, Injectable } from '@angular/core'
+import { map, Observable, shareReplay } from 'rxjs'
 import { IPaginationProfile, IProfile } from '../interfaces/profile.interface'
-import { CheckService } from './check.service'
 
 @Injectable({
 	providedIn: 'root',
 })
 export class ProfileService {
 	http = inject(HttpClient)
-	checkService = inject(CheckService)
 	currentDate = new Date().toISOString().split('T')[0]
 	pageSize: number = 10
 	currentPage: number = 1
@@ -30,23 +28,23 @@ export class ProfileService {
 		}
 	}
 
-	getFilterProfiles(page: number): Observable<IPaginationProfile> {
+	getFilterProfiles(
+		page: number,
+		isChecked: boolean
+	): Observable<IPaginationProfile> {
 		this.currentPage = page
 		return this.getProfile().pipe(
-			switchMap(profiles =>
-				this.checkService.isChecked$.pipe(
-					map(isChecked => {
-						let filteredProfiles = isChecked
-							? this.filterProfiles(profiles)
-							: profiles
-						return {
-							profiles: filteredProfiles,
-							totalCount: filteredProfiles.length,
-							isChecked: isChecked,
-						}
-					})
-				)
-			)
+			map(profiles => {
+				let filteredProfiles = isChecked
+					? this.filterProfiles(profiles)
+					: profiles
+
+				return {
+					profiles: filteredProfiles,
+					totalCount: filteredProfiles.length,
+					isChecked: isChecked,
+				}
+			})
 		)
 	}
 

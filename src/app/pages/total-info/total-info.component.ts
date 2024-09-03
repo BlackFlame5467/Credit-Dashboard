@@ -84,7 +84,7 @@ export class TotalInfoComponent {
 
 	loadProfiles(page: number) {
 		this.profileService
-			.getFilterProfiles(page)
+			.getFilterProfiles(page, this.isChecked)
 			.subscribe(({ profiles, totalCount, isChecked }) => {
 				this.profiles.set(profiles)
 				this.totalCount.set(totalCount)
@@ -114,6 +114,11 @@ export class TotalInfoComponent {
 	onPageChange(page: number) {
 		this.currentPage.set(page)
 		this.applyPagination()
+	}
+
+	onCheckboxChange(newState: boolean) {
+		this.isChecked = newState
+		this.loadProfiles(this.currentPage())
 	}
 
 	applyPagination() {

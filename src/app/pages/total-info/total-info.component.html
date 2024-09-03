@@ -1,4 +1,7 @@
-<app-checkbox></app-checkbox>
+<app-checkbox
+	[isChecked]="isChecked"
+	(checkedChange)="onCheckboxChange($event)"
+></app-checkbox>
 <div class="table__container">
 	<table class="table table-striped total__table">
 		<thead class="total__thead">
