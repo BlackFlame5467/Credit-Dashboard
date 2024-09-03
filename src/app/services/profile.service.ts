@@ -40,13 +40,8 @@ export class ProfileService {
 							? this.filterProfiles(profiles)
 							: profiles
 						return {
-							profiles: this.paginationProfiles(
-								filteredProfiles,
-								this.currentPage
-							),
-							totalCount: isChecked
-								? this.filterProfiles(profiles).length
-								: profiles.length,
+							profiles: filteredProfiles,
+							totalCount: filteredProfiles.length,
 							isChecked: isChecked,
 						}
 					})

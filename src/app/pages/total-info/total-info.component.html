@@ -16,7 +16,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			@for( profile of profiles(); track profile.id) {
+			@for( profile of displayedProfiles(); track profile.id) {
 			<tr>
 				<th scope="row">{{ profile.id }}</th>
 				<td [ngClass]="{ prom: isChecked }">{{ profile.user }}</td>

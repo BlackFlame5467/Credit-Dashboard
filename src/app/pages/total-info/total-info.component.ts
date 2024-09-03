@@ -63,13 +63,24 @@ export class NgbdSortableHeader {
 })
 export class TotalInfoComponent {
 	profileService = inject(ProfileService)
+
 	profiles = signal<IProfile[]>([])
+	displayedProfiles = signal<IProfile[]>([])
+
 	currentDate = new Date().toISOString().split('T')[0]
+
 	isChecked: boolean = false
 
 	currentPage = signal<number>(1)
 	pageSize: number = 10
 	totalCount = signal<number>(0)
+
+	constructor() {
+		this.loadProfiles(this.currentPage())
+	}
+
+	@ViewChildren(NgbdSortableHeader)
+	headers!: QueryList<NgbdSortableHeader>
 
 	loadProfiles(page: number) {
 		this.profileService
@@ -78,15 +89,9 @@ export class TotalInfoComponent {
 				this.profiles.set(profiles)
 				this.totalCount.set(totalCount)
 				this.isChecked = isChecked
+				this.applyPagination()
 			})
 	}
-
-	constructor() {
-		this.loadProfiles(this.currentPage())
-	}
-
-	@ViewChildren(NgbdSortableHeader)
-	headers!: QueryList<NgbdSortableHeader>
 
 	onSort({ column, direction }: SortEvent) {
 		for (const header of this.headers) {
@@ -102,11 +107,18 @@ export class TotalInfoComponent {
 				return direction === 'asc' ? res : -res
 			})
 			this.profiles.set(sortedProfiles)
+			this.applyPagination()
 		}
 	}
 
 	onPageChange(page: number) {
 		this.currentPage.set(page)
-		this.loadProfiles(page)
+		this.applyPagination()
+	}
+
+	applyPagination() {
+		const start = (this.currentPage() - 1) * this.pageSize
+		const end = start + this.pageSize
+		this.displayedProfiles.set(this.profiles().slice(start, end))
 	}
 }
