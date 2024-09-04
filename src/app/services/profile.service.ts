@@ -1,7 +1,13 @@
 import { HttpClient } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core'
-import { map, Observable, shareReplay } from 'rxjs'
-import { IPaginationProfile, IProfile } from '../interfaces/profile.interface'
+import { map, Observable, of, shareReplay } from 'rxjs'
+import {
+	IDateProfile,
+	IPaginationProfile,
+	IProfile,
+} from '../interfaces/profile.interface'
+import { getEndOfMonth, getFormatDate } from '../utils/format-date.util'
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap'
 
 @Injectable({
 	providedIn: 'root',
@@ -55,6 +61,75 @@ export class ProfileService {
 				(profile.return_date < this.currentDate && !profile.actual_return_date)
 			)
 		})
+	}
+
+	filterProfilesOnDate(date: string | NgbDateStruct): Observable<IProfile[]> {
+		if (typeof date === 'string') {
+			return this.getProfile()
+		} else {
+			const startDate: string = getFormatDate(date)
+			const endDate: string = getEndOfMonth(date)
+
+			return this.getProfile().pipe(
+				map(profiles => {
+					return profiles.filter(profile => {
+						return (
+							profile.issuance_date >= startDate &&
+							profile.issuance_date <= endDate
+						)
+					})
+				})
+			)
+		}
+	}
+
+	filterPeriodProfilesIssuance(
+		fromDate: NgbDateStruct,
+		toDate: NgbDateStruct
+	): Observable<IDateProfile[]> {
+		const startDate: string = getFormatDate(fromDate)
+		const endDate: string = getFormatDate(toDate)
+
+		return this.getProfile().pipe(
+			map(profiles => {
+				let filteredProfiles = profiles.filter(profile => {
+					return (
+						profile.issuance_date >= startDate &&
+						profile.issuance_date <= endDate
+					)
+				})
+				return [
+					{
+						profiles: filteredProfiles,
+						totalCount: filteredProfiles.length,
+					},
+				]
+			})
+		)
+	}
+	filterPeriodProfilesReturn(
+		fromDate: NgbDateStruct,
+		toDate: NgbDateStruct
+	): Observable<IDateProfile[]> {
+		const startDate: string = getFormatDate(fromDate)
+		const endDate: string = getFormatDate(toDate)
+
+		return this.getProfile().pipe(
+			map(profiles => {
+				let filteredProfiles = profiles.filter(profile => {
+					return (
+						profile.actual_return_date >= startDate &&
+						profile.actual_return_date <= endDate
+					)
+				})
+				return [
+					{
+						profiles: filteredProfiles,
+						totalCount: filteredProfiles.length,
+					},
+				]
+			})
+		)
 	}
 
 	paginationProfiles(profiles: IProfile[], currentPage: number): IProfile[] {

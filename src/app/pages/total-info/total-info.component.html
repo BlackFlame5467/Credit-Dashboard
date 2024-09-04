@@ -1,7 +1,22 @@
-<app-checkbox
-	[isChecked]="isChecked"
-	(checkedChange)="onCheckboxChange($event)"
-></app-checkbox>
+<div class="filters">
+	<app-checkbox
+		[isChecked]="isChecked"
+		(checkedChange)="onCheckboxChange($event)"
+	></app-checkbox>
+	<app-datepicker
+		class="datepicker__issuance datepicker__container"
+		[title]="'Дата видачі кредиту'"
+		[type]="'issuance'"
+		(dateSelected)="onDateSelected($event)"
+	></app-datepicker>
+	<app-datepicker
+		class="datepicker__return datepicker__container"
+		[title]="'Дата повернення кредиту'"
+		[type]="'return'"
+		(dateSelected)="onDateSelected($event)"
+	></app-datepicker>
+</div>
+
 <div class="table__container">
 	<table class="table table-striped total__table">
 		<thead class="total__thead">

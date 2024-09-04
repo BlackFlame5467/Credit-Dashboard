@@ -1,12 +1,20 @@
-@import "./vars";
+@import './vars';
 
 body {
-  height: 100%;
-  font-family: "Poppins", sans-serif !important;
-  background: linear-gradient(
-      180deg,
-      rgba(89, 50, 234, 1) 17%,
-      rgba(126, 29, 253, 1) 77%
-    )
-    center / cover no-repeat;
+	height: 100%;
+	font-family: 'Poppins', sans-serif !important;
+	background: linear-gradient(
+			180deg,
+			rgba(89, 50, 234, 1) 17%,
+			rgba(126, 29, 253, 1) 77%
+		)
+		center / cover no-repeat;
+}
+
+.none {
+	display: none;
+}
+
+.block {
+	display: block;
 }

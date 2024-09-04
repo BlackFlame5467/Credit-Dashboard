@@ -94,44 +94,15 @@ export class ShortInfoComponent {
 	]
 
 	constructor() {
-		this.filterProfilesOnDate().subscribe(profiles => {
+		this.profileService.filterProfilesOnDate(this.date).subscribe(profiles => {
 			this.profiles.set(profiles)
-			this.updateBoardValues()
 		})
 	}
 
 	onChangeDate(newDate: NgbDateStruct) {
 		this.date = newDate
-		this.filterProfilesOnDate().subscribe(profiles => {
+		this.profileService.filterProfilesOnDate(this.date).subscribe(profiles => {
 			this.profiles.set(profiles)
-			this.updateBoardValues()
-		})
-	}
-
-	filterProfilesOnDate(): Observable<IProfile[]> {
-		if (typeof this.date === 'string') {
-			return this.profileService.getProfile()
-		} else {
-			const startDate: string = getFormatDate(this.date)
-			const endDate: string = getEndOfMonth(this.date)
-			return this.profileService.getProfile().pipe(
-				map(profiles => {
-					return profiles.filter(profile => {
-						return (
-							profile.issuance_date >= startDate &&
-							profile.issuance_date <= endDate
-						)
-					})
-				})
-			)
-		}
-	}
-
-	updateBoardValues() {
-		this.shortboards.forEach(board => {
-			if (typeof board.value === 'function') {
-				board.newValue = board.value()
-			}
 		})
 	}
 }

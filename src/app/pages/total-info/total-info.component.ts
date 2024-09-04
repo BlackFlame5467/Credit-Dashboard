@@ -10,12 +10,13 @@ import {
 	signal,
 	ViewChildren,
 } from '@angular/core'
-import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap'
+import { NgbDate, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap'
 import { CheckboxComponent } from '../../components/checkbox/checkbox.component'
-import { IProfile } from '../../interfaces/profile.interface'
+import { IDateProfile, IProfile } from '../../interfaces/profile.interface'
 import { SortEvent } from '../../interfaces/sort.interface'
 import { ProfileService } from '../../services/profile.service'
 import { SortColumn, SortDirection } from '../../types/sort.type'
+import { DatepickerComponent } from '../../components/datepicker/datepicker.component'
 
 const rotate: { [key: string]: SortDirection } = {
 	asc: 'desc',
@@ -57,6 +58,7 @@ export class NgbdSortableHeader {
 		CheckboxComponent,
 		NgbPaginationModule,
 		CommonModule,
+		DatepickerComponent,
 	],
 	templateUrl: './total-info.component.html',
 	styleUrl: './total-info.component.scss',
@@ -119,6 +121,29 @@ export class TotalInfoComponent {
 	onCheckboxChange(newState: boolean) {
 		this.isChecked = newState
 		this.loadProfiles(this.currentPage())
+	}
+
+	onDateSelected(event: { fromDate: NgbDate; toDate: NgbDate; type: string }) {
+		if (event.type === 'issuance') {
+			this.profileService
+				.filterPeriodProfilesIssuance(event.fromDate, event.toDate)
+				.subscribe((dateProfiles: IDateProfile[]) => {
+					const { profiles, totalCount } = dateProfiles[0]
+					this.profiles.set(profiles)
+					this.totalCount.set(totalCount)
+					this.applyPagination()
+				})
+		}
+		if (event.type === 'return') {
+			this.profileService
+				.filterPeriodProfilesReturn(event.fromDate, event.toDate)
+				.subscribe((dateProfiles: IDateProfile[]) => {
+					const { profiles, totalCount } = dateProfiles[0]
+					this.profiles.set(profiles)
+					this.totalCount.set(totalCount)
+					this.applyPagination()
+				})
+		}
 	}
 
 	applyPagination() {

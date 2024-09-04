@@ -24,3 +24,8 @@ export interface ITopProfiles {
 	percent: number
 	value: number
 }
+
+export interface IDateProfile {
+	profiles: IProfile[]
+	totalCount: number
+}
