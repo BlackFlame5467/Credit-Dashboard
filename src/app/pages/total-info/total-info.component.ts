@@ -10,13 +10,17 @@ import {
 	signal,
 	ViewChildren,
 } from '@angular/core'
-import { NgbDate, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap'
+import {
+	NgbDate,
+	NgbDateStruct,
+	NgbPaginationModule,
+} from '@ng-bootstrap/ng-bootstrap'
 import { CheckboxComponent } from '../../components/checkbox/checkbox.component'
+import { DatepickerComponent } from '../../components/datepicker/datepicker.component'
 import { IDateProfile, IProfile } from '../../interfaces/profile.interface'
 import { SortEvent } from '../../interfaces/sort.interface'
 import { ProfileService } from '../../services/profile.service'
 import { SortColumn, SortDirection } from '../../types/sort.type'
-import { DatepickerComponent } from '../../components/datepicker/datepicker.component'
 
 const rotate: { [key: string]: SortDirection } = {
 	asc: 'desc',
@@ -70,6 +74,9 @@ export class TotalInfoComponent {
 	displayedProfiles = signal<IProfile[]>([])
 
 	currentDate = new Date().toISOString().split('T')[0]
+	selectedFromDate = signal<NgbDateStruct | null>(null)
+	selectedToDate = signal<NgbDateStruct | string>('')
+	type = signal<string>('')
 
 	isChecked: boolean = false
 
@@ -91,6 +98,7 @@ export class TotalInfoComponent {
 				this.profiles.set(profiles)
 				this.totalCount.set(totalCount)
 				this.isChecked = isChecked
+
 				this.applyPagination()
 			})
 	}
@@ -102,7 +110,24 @@ export class TotalInfoComponent {
 			}
 		}
 		if (direction === '' || column === '') {
-			this.loadProfiles(this.currentPage())
+			if (this.selectedFromDate() && this.selectedToDate()) {
+				this.profileService
+					.filterOnPeriod(
+						this.selectedFromDate() as NgbDateStruct,
+						this.selectedToDate() as NgbDateStruct,
+						this.type(),
+						this.isChecked
+					)
+					.subscribe((data: IDateProfile[]) => {
+						const { profiles, totalCount } = data[0]
+
+						this.profiles.set(profiles)
+						this.totalCount.set(totalCount)
+						this.applyPagination()
+					})
+			} else {
+				this.loadProfiles(this.currentPage())
+			}
 		} else {
 			const sortedProfiles = [...this.profiles()].sort((a, b) => {
 				const res = compare(a[column], b[column])
@@ -120,30 +145,45 @@ export class TotalInfoComponent {
 
 	onCheckboxChange(newState: boolean) {
 		this.isChecked = newState
-		this.loadProfiles(this.currentPage())
+		if (this.selectedFromDate() && this.selectedToDate()) {
+			this.profileService
+				.filterOnPeriod(
+					this.selectedFromDate() as NgbDateStruct,
+					this.selectedToDate() as NgbDateStruct,
+					this.type(),
+					this.isChecked
+				)
+				.subscribe((data: IDateProfile[]) => {
+					const { profiles, totalCount } = data[0]
+
+					this.profiles.set(profiles)
+					this.totalCount.set(totalCount)
+					this.applyPagination()
+				})
+		} else {
+			this.loadProfiles(this.currentPage())
+		}
 	}
 
 	onDateSelected(event: { fromDate: NgbDate; toDate: NgbDate; type: string }) {
-		if (event.type === 'issuance') {
-			this.profileService
-				.filterPeriodProfilesIssuance(event.fromDate, event.toDate)
-				.subscribe((dateProfiles: IDateProfile[]) => {
-					const { profiles, totalCount } = dateProfiles[0]
-					this.profiles.set(profiles)
-					this.totalCount.set(totalCount)
-					this.applyPagination()
-				})
-		}
-		if (event.type === 'return') {
-			this.profileService
-				.filterPeriodProfilesReturn(event.fromDate, event.toDate)
-				.subscribe((dateProfiles: IDateProfile[]) => {
-					const { profiles, totalCount } = dateProfiles[0]
-					this.profiles.set(profiles)
-					this.totalCount.set(totalCount)
-					this.applyPagination()
-				})
-		}
+		this.selectedFromDate.set(event.fromDate)
+		this.selectedToDate.set(event.toDate)
+		this.type.set(event.type)
+
+		this.profileService
+			.filterOnPeriod(
+				this.selectedFromDate() as NgbDateStruct,
+				this.selectedToDate() as NgbDateStruct,
+				this.type(),
+				this.isChecked
+			)
+			.subscribe((data: IDateProfile[]) => {
+				const { profiles, totalCount } = data[0]
+
+				this.profiles.set(profiles)
+				this.totalCount.set(totalCount)
+				this.applyPagination()
+			})
 	}
 
 	applyPagination() {

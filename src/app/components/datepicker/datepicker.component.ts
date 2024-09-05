@@ -57,6 +57,11 @@ export class DatepickerComponent {
 		} else {
 			this.toDate = null
 			this.fromDate = date
+			this.dateSelected.emit({
+				fromDate: this.fromDate,
+				toDate: this.calendar.getToday(),
+				type: this.type,
+			})
 		}
 	}
 

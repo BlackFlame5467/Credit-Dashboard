@@ -21,10 +21,8 @@ export class ProfileService {
 
 	getProfile(): Observable<IProfile[]> {
 		if (this.store$) {
-			console.log('Кэш')
 			return this.store$
 		} else {
-			console.log('Сервер')
 			this.store$ = this.http
 				.get<IProfile[]>(
 					'https://raw.githubusercontent.com/LightOfTheSun/front-end-coding-task-db/master/db.json'
@@ -83,53 +81,63 @@ export class ProfileService {
 		}
 	}
 
-	filterPeriodProfilesIssuance(
+	filterOnPeriod(
 		fromDate: NgbDateStruct,
-		toDate: NgbDateStruct
+		toDate: NgbDateStruct,
+		type: string,
+		isChecked: boolean
 	): Observable<IDateProfile[]> {
 		const startDate: string = getFormatDate(fromDate)
 		const endDate: string = getFormatDate(toDate)
 
-		return this.getProfile().pipe(
-			map(profiles => {
-				let filteredProfiles = profiles.filter(profile => {
-					return (
-						profile.issuance_date >= startDate &&
-						profile.issuance_date <= endDate
-					)
+		if (type === 'issuance') {
+			return this.getProfile().pipe(
+				map(profiles => {
+					let filteredCheckedProfiles = isChecked
+						? this.filterProfiles(profiles)
+						: profiles
+					let filteredProfiles = filteredCheckedProfiles.filter(profile => {
+						return (
+							profile.issuance_date >= startDate &&
+							profile.issuance_date <= endDate
+						)
+					})
+					return [
+						{
+							profiles: filteredProfiles,
+							totalCount: filteredProfiles.length,
+						},
+					]
 				})
-				return [
-					{
-						profiles: filteredProfiles,
-						totalCount: filteredProfiles.length,
-					},
-				]
-			})
-		)
-	}
-	filterPeriodProfilesReturn(
-		fromDate: NgbDateStruct,
-		toDate: NgbDateStruct
-	): Observable<IDateProfile[]> {
-		const startDate: string = getFormatDate(fromDate)
-		const endDate: string = getFormatDate(toDate)
-
-		return this.getProfile().pipe(
-			map(profiles => {
-				let filteredProfiles = profiles.filter(profile => {
-					return (
-						profile.actual_return_date >= startDate &&
-						profile.actual_return_date <= endDate
-					)
+			)
+		} else if (type === 'return') {
+			return this.getProfile().pipe(
+				map(profiles => {
+					let filteredCheckedProfiles = isChecked
+						? this.filterProfiles(profiles)
+						: profiles
+					let filteredProfiles = filteredCheckedProfiles.filter(profile => {
+						return (
+							profile.actual_return_date >= startDate &&
+							profile.actual_return_date <= endDate
+						)
+					})
+					return [
+						{
+							profiles: filteredProfiles,
+							totalCount: filteredProfiles.length,
+						},
+					]
 				})
-				return [
-					{
-						profiles: filteredProfiles,
-						totalCount: filteredProfiles.length,
-					},
-				]
-			})
-		)
+			)
+		} else {
+			return of([
+				{
+					profiles: [],
+					totalCount: 0,
+				},
+			])
+		}
 	}
 
 	paginationProfiles(profiles: IProfile[], currentPage: number): IProfile[] {
