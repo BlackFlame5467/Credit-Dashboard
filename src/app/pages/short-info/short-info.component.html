@@ -1,23 +1,12 @@
-<form class="row row-cols-sm-auto">
-	<div class="col-12">
-		<div class="input-group">
-			<input
-				class="form-control"
-				[placeholder]="date"
-				name="dp"
-				[(ngModel)]="date"
-				(ngModelChange)="onChangeDate($event)"
-				ngbDatepicker
-				#d="ngbDatepicker"
-			/>
-			<button
-				class="btn btn-outline-secondary bi bi-calendar3"
-				(click)="d.toggle()"
-				type="button"
-			></button>
-		</div>
-	</div>
-</form>
+<app-datepicker
+	[title]="
+		this.selectedFromDate() && this.selectedToDate()
+			? 'з ' + this.selectedFromDate() + ' по ' + this.selectedToDate()
+			: 'Період видачі кредитів'
+	"
+	[type]="'issuance'"
+	(dateSelected)="onDateSelected($event)"
+></app-datepicker>
 
 <hr />
 <div class="boards">

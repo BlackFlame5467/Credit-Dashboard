@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core'
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap'
 import { map, Observable, of, shareReplay } from 'rxjs'
 import {
 	IDateProfile,
 	IPaginationProfile,
 	IProfile,
 } from '../interfaces/profile.interface'
-import { getEndOfMonth, getFormatDate } from '../utils/format-date.util'
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap'
+import { getFormatDate } from '../utils/format-date.util'
 
 @Injectable({
 	providedIn: 'root',
@@ -17,7 +17,7 @@ export class ProfileService {
 	currentDate = new Date().toISOString().split('T')[0]
 	pageSize: number = 10
 	currentPage: number = 1
-	private store$!: Observable<IProfile[]>
+	store$!: Observable<IProfile[]>
 
 	getProfile(): Observable<IProfile[]> {
 		if (this.store$) {
@@ -61,31 +61,11 @@ export class ProfileService {
 		})
 	}
 
-	filterProfilesOnDate(date: string | NgbDateStruct): Observable<IProfile[]> {
-		if (typeof date === 'string') {
-			return this.getProfile()
-		} else {
-			const startDate: string = getFormatDate(date)
-			const endDate: string = getEndOfMonth(date)
-
-			return this.getProfile().pipe(
-				map(profiles => {
-					return profiles.filter(profile => {
-						return (
-							profile.issuance_date >= startDate &&
-							profile.issuance_date <= endDate
-						)
-					})
-				})
-			)
-		}
-	}
-
 	filterOnPeriod(
 		fromDate: NgbDateStruct,
 		toDate: NgbDateStruct,
 		type: string,
-		isChecked: boolean
+		isChecked?: boolean
 	): Observable<IDateProfile[]> {
 		const startDate: string = getFormatDate(fromDate)
 		const endDate: string = getFormatDate(toDate)
@@ -106,6 +86,8 @@ export class ProfileService {
 						{
 							profiles: filteredProfiles,
 							totalCount: filteredProfiles.length,
+							startDate,
+							endDate,
 						},
 					]
 				})
@@ -126,6 +108,8 @@ export class ProfileService {
 						{
 							profiles: filteredProfiles,
 							totalCount: filteredProfiles.length,
+							startDate,
+							endDate,
 						},
 					]
 				})
@@ -135,6 +119,8 @@ export class ProfileService {
 				{
 					profiles: [],
 					totalCount: 0,
+					startDate,
+					endDate,
 				},
 			])
 		}

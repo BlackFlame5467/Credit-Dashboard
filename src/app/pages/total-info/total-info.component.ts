@@ -5,6 +5,7 @@ import {
 	EventEmitter,
 	inject,
 	Input,
+	OnDestroy,
 	Output,
 	QueryList,
 	signal,
@@ -21,6 +22,7 @@ import { IDateProfile, IProfile } from '../../interfaces/profile.interface'
 import { SortEvent } from '../../interfaces/sort.interface'
 import { ProfileService } from '../../services/profile.service'
 import { SortColumn, SortDirection } from '../../types/sort.type'
+import { Subject, takeUntil } from 'rxjs'
 
 const rotate: { [key: string]: SortDirection } = {
 	asc: 'desc',
@@ -67,14 +69,16 @@ export class NgbdSortableHeader {
 	templateUrl: './total-info.component.html',
 	styleUrl: './total-info.component.scss',
 })
-export class TotalInfoComponent {
+export class TotalInfoComponent implements OnDestroy {
 	profileService = inject(ProfileService)
+
+	destroy$ = new Subject<void>()
 
 	profiles = signal<IProfile[]>([])
 	displayedProfiles = signal<IProfile[]>([])
 
 	currentDate = new Date().toISOString().split('T')[0]
-	selectedFromDate = signal<NgbDateStruct | null>(null)
+	selectedFromDate = signal<NgbDateStruct | string>('')
 	selectedToDate = signal<NgbDateStruct | string>('')
 	type = signal<string>('')
 
@@ -94,6 +98,7 @@ export class TotalInfoComponent {
 	loadProfiles(page: number) {
 		this.profileService
 			.getFilterProfiles(page, this.isChecked)
+			.pipe(takeUntil(this.destroy$))
 			.subscribe(({ profiles, totalCount, isChecked }) => {
 				this.profiles.set(profiles)
 				this.totalCount.set(totalCount)
@@ -118,6 +123,7 @@ export class TotalInfoComponent {
 						this.type(),
 						this.isChecked
 					)
+					.pipe(takeUntil(this.destroy$))
 					.subscribe((data: IDateProfile[]) => {
 						const { profiles, totalCount } = data[0]
 
@@ -153,6 +159,7 @@ export class TotalInfoComponent {
 					this.type(),
 					this.isChecked
 				)
+				.pipe(takeUntil(this.destroy$))
 				.subscribe((data: IDateProfile[]) => {
 					const { profiles, totalCount } = data[0]
 
@@ -177,6 +184,7 @@ export class TotalInfoComponent {
 				this.type(),
 				this.isChecked
 			)
+			.pipe(takeUntil(this.destroy$))
 			.subscribe((data: IDateProfile[]) => {
 				const { profiles, totalCount } = data[0]
 
@@ -190,5 +198,10 @@ export class TotalInfoComponent {
 		const start = (this.currentPage() - 1) * this.pageSize
 		const end = start + this.pageSize
 		this.displayedProfiles.set(this.profiles().slice(start, end))
+	}
+
+	ngOnDestroy(): void {
+		this.destroy$.next()
+		this.destroy$.complete()
 	}
 }

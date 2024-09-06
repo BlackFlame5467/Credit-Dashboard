@@ -38,7 +38,6 @@ export function biggestTotalPercents(profiles: IProfile[]): ITopProfiles[] {
 			}
 			return acc
 		}, {} as Record<string, ITopProfiles>)
-	console.log(Object.values(userMap))
 
 	const topProfiles = Object.values(userMap)
 		.sort((a, b) => b.value - a.value)

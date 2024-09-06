@@ -1,15 +1,17 @@
 import { JsonPipe } from '@angular/common'
-import { Component, computed, inject, signal } from '@angular/core'
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import {
 	NgbAlertModule,
+	NgbCalendar,
+	NgbDate,
 	NgbDatepickerModule,
 	NgbDateStruct,
 } from '@ng-bootstrap/ng-bootstrap'
-import { map, Observable } from 'rxjs'
+import { map, Observable, Subject, takeUntil } from 'rxjs'
 import { ShortboardComponent } from '../../components/shortboard/shortboard.component'
 import { IBoard } from '../../interfaces/board.interface'
-import { IProfile } from '../../interfaces/profile.interface'
+import { IDateProfile, IProfile } from '../../interfaces/profile.interface'
 import { ProfileService } from '../../services/profile.service'
 import {
 	averageCreditAmount,
@@ -18,7 +20,11 @@ import {
 	totalCreditSum,
 	totalPercentAmount,
 } from '../../utils/board.util'
-import { getEndOfMonth, getFormatDate } from '../../utils/format-date.util'
+import {
+	getEndOfMonth,
+	getFormatDate,
+	getLastDayNgbDate,
+} from '../../utils/format-date.util'
 import { ITable } from '../../interfaces/table.interface'
 import {
 	biggestTotalCredits,
@@ -26,6 +32,7 @@ import {
 	expenseRatio,
 } from '../../utils/top-users.utils'
 import { TableComponent } from '../../components/table/table.component'
+import { DatepickerComponent } from '../../components/datepicker/datepicker.component'
 
 @Component({
 	selector: 'app-short-info',
@@ -37,14 +44,23 @@ import { TableComponent } from '../../components/table/table.component'
 		FormsModule,
 		JsonPipe,
 		TableComponent,
+		DatepickerComponent,
 	],
 	templateUrl: './short-info.component.html',
 	styleUrl: './short-info.component.scss',
 })
-export class ShortInfoComponent {
+export class ShortInfoComponent implements OnDestroy {
 	profileService = inject(ProfileService)
-	date: NgbDateStruct | string = new Date().toISOString().split('T')[0]
+	calendar = inject(NgbCalendar)
+
+	destroy$ = new Subject<void>()
+
+	selectedFromDate = signal<NgbDateStruct | string>('')
+	selectedToDate = signal<NgbDateStruct | string>('')
+	type = signal<string>('')
+
 	profiles = signal<IProfile[]>([])
+
 	shortboards: IBoard[] = [
 		{
 			id: 1,
@@ -93,16 +109,28 @@ export class ShortInfoComponent {
 		},
 	]
 
-	constructor() {
-		this.profileService.filterProfilesOnDate(this.date).subscribe(profiles => {
-			this.profiles.set(profiles)
-		})
+	onDateSelected(event: { fromDate: NgbDate; toDate: NgbDate; type: string }) {
+		this.selectedFromDate.set(event.fromDate)
+		this.selectedToDate.set(event.toDate)
+		this.type.set(event.type)
+
+		this.profileService
+			.filterOnPeriod(
+				this.selectedFromDate() as NgbDateStruct,
+				this.selectedToDate() as NgbDateStruct,
+				this.type()
+			)
+			.pipe(takeUntil(this.destroy$))
+			.subscribe((data: IDateProfile[]) => {
+				const { profiles, startDate, endDate } = data[0]
+				this.profiles.set(profiles)
+				this.selectedFromDate.set(startDate)
+				this.selectedToDate.set(endDate)
+			})
 	}
 
-	onChangeDate(newDate: NgbDateStruct) {
-		this.date = newDate
-		this.profileService.filterProfilesOnDate(this.date).subscribe(profiles => {
-			this.profiles.set(profiles)
-		})
+	ngOnDestroy(): void {
+		this.destroy$.next()
+		this.destroy$.complete()
 	}
 }

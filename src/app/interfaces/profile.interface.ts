@@ -28,4 +28,6 @@ export interface ITopProfiles {
 export interface IDateProfile {
 	profiles: IProfile[]
 	totalCount: number
+	startDate: string
+	endDate: string
 }
